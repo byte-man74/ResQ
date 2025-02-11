@@ -25,3 +25,5 @@ type Location struct {
 	Country     string  `gorm:"not null" json:"country"`
 	PostalCode  string  `json:"postal_code"`
 }
+
+
