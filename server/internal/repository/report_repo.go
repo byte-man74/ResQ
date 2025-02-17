@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 
 	"example.com/resq/server/internal/models"
@@ -12,8 +13,8 @@ type ReportRepository interface {
 	CreateReport(report *models.Report) (*models.Report, error)
 	EditReport(id string, report *models.Report) (*models.Report, error)
 	ViewReport(id string) (*models.Report, error)
-	DeleteReport(id string) (error)
 }
+
 
 type reportRepository struct {
 	db *gorm.DB
@@ -21,65 +22,57 @@ type reportRepository struct {
 
 
 func NewReportRepository (db *gorm.DB) ReportRepository {
-	return &reportRepository{db: db}
+	return &reportRepository{db : db}
 }
 
 
 
 func (r *reportRepository) CreateReport(report *models.Report) (*models.Report, error) {
+	if report == nil {
+		return nil, errors.New("report cannot be nil")
+	}
+
 	result := r.db.Create(report)
+
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, fmt.Errorf("failed to create report: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, errors.New("no report was created")
 	}
 
 	return report, nil
 }
 
-
-func (r *reportRepository) ViewReport(id string) (*models.Report, error) {
+func (r *reportRepository ) ViewReport (id string) (*models.Report, error) {
 	var report models.Report
 	result := r.db.First(&report, "id = ?", id)
-
 	if result.Error != nil {
 		return nil, result.Error
 	}
-
 	return &report, nil
 }
 
 
-func (r *reportRepository) EditReport(id string, report *models.Report) (*models.Report, error) {
-	result, err := r.ViewReport(id)
-
-	if err != nil {
-		return nil, err
-	}
-
-	updateResult := r.db.Model(&result).Updates(report)
-	if updateResult.Error != nil {
-		return nil, updateResult.Error
-	}
-
-	return result, nil
-}
-
-func (r *reportRepository) DeleteReport(id string) error {
-	if id == "" {
-		return fmt.Errorf("invalid id provided")
-	}
-
-	report, err := r.ViewReport(id)
-	if err != nil {
-		return fmt.Errorf("failed to find report: %w", err)
-	}
-
+func (r *reportRepository) EditReport (id string, report *models.Report) (*models.Report, error) {
 	if report == nil {
-		return fmt.Errorf("report not found")
+		return nil, errors.New("report cannot be nil")
 	}
 
-	if err := r.db.Delete(report).Error; err != nil {
-		return fmt.Errorf("failed to delete report: %w", err)
+	existingReport, err := r.ViewReport(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find report: %w", err)
 	}
 
-	return nil
+	result := r.db.Model(&existingReport).Updates(report)
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to update report: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, errors.New("no report was updated")
+	}
+
+	return report, nil
 }
