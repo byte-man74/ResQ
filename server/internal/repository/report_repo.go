@@ -3,7 +3,6 @@ package repository
 import (
 	"errors"
 	"fmt"
-
 	"example.com/resq/server/internal/models"
 	"gorm.io/gorm"
 )
