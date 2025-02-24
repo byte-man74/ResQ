@@ -10,6 +10,7 @@ import (
 type IncidentService interface {
 	CreateIncident(incident *models.Incident) (*models.Incident, error)
 	UpdateIncident(id string, incident *models.Incident) (*models.Incident, error)
+	ViewIncident(id string) (*models.Incident, error)
 }
 
 
@@ -35,7 +36,7 @@ func (i *incidentService) CreateIncident(incident *models.Incident) (*models.Inc
 }
 
 
-func (i *incidentService) 	UpdateIncident(id string, incident *models.Incident) (*models.Incident, error) {
+func (i *incidentService) UpdateIncident(id string, incident *models.Incident) (*models.Incident, error) {
 	updatedIncident, err := i.repo.UpdateIncident(id, incident)
 
 	if err != nil {
@@ -44,4 +45,16 @@ func (i *incidentService) 	UpdateIncident(id string, incident *models.Incident) 
 
 
 	return updatedIncident, nil
+}
+
+func (i *incidentService) 	ViewIncident(id string) (*models.Incident, error) {
+	incident, err := i.repo.ViewIncident(id)
+
+
+	if err != nil {
+		return nil, fmt.Errorf("unable to fetch incident %w", err)
+	}
+
+
+	return incident, nil
 }
