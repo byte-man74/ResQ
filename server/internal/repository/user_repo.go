@@ -12,7 +12,7 @@ type UserRepository interface {
 	CreateUser(user *models.User, registrationLocationInformation *models.UserRegistrationLocation, location *models.Location) (*models.User, error);
 	UpdateUser(user *models.User)(*models.User, error)
 	UpdateUserSocialInformation(socialInformation *models.UserSocialInformation) (*models.UserSocialInformation, error)
-	GetFullUserInformation(userId string) (*models.FullUserInformation, error )
+	GetFullUserInformation(id string) (*models.FullUserInformation, error )
 }
 
 type userRepository struct {
@@ -81,8 +81,8 @@ func (r *userRepository ) UpdateUser (user *models.User) (*models.User, error) {
 
 
 
-func (r *userRepository) GetFullUserInformation(userId string) (*models.FullUserInformation, error) {
-	if userId == "" {
+func (r *userRepository) GetFullUserInformation(id string) (*models.FullUserInformation, error) {
+	if id == "" {
 		return nil, fmt.Errorf("user ID must be provided to get full information")
 	}
 
@@ -90,8 +90,8 @@ func (r *userRepository) GetFullUserInformation(userId string) (*models.FullUser
 	if err := r.db.
 		Preload("UserRegistrationLocation.Location").
 		Preload("UserSocialInformation.Images").
-		First(&user, "id = ?", userId).Error; err != nil {
-		return nil, fmt.Errorf("error getting user information for ID %s: %w", userId, err)
+		First(&user, "id = ?", id).Error; err != nil {
+		return nil, fmt.Errorf("error getting user information for ID %s: %w", id, err)
 	}
 
 	// Manually query associated data using the user ID
@@ -101,14 +101,14 @@ func (r *userRepository) GetFullUserInformation(userId string) (*models.FullUser
 
 	// Efficiently load association
 	if err := r.db.Model(&models.UserRegistrationLocation{}).
-		Where("user_id = ?", userId).
+		Where("user_id = ?", id).
 		Preload("Location").
 		First(&fullInformation.UserRegistrationLocation).Error; err != nil {
 		fullInformation.UserRegistrationLocation = nil // Handle missing data
 	}
 
 	if err := r.db.Model(&models.UserSocialInformation{}).
-		Where("user_id = ?", userId).
+		Where("user_id = ?", id).
 		Preload("Images").
 		First(&fullInformation.UserSocialInformation).Error; err != nil {
 		fullInformation.UserSocialInformation = nil // Handle missing data

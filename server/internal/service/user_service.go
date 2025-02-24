@@ -10,7 +10,9 @@ import (
 
 type UserService interface {
 	CreateUser(user *models.User, registrationLocationInformation *models.UserRegistrationLocation, location *models.Location) (*models.User, error);
-	UpdateUserSocialInformation(socialInformation *models.UserSocialInformation) (*models.UserSocialInformation, error)
+	UpdateUserSocialInformation(socialInformation *models.UserSocialInformation) (*models.UserSocialInformation, error);
+    UpdateUserBasicInformation(user *models.User) (*models.User, error);
+    GetFullUserInformation(id string) (*models.FullUserInformation, error )
 }
 
 
@@ -47,4 +49,25 @@ func (u *userService) UpdateUserSocialInformation(socialInformation *models.User
 
 
     return updatedInformation, nil
+}
+
+
+func (u *userService) UpdateUserBasicInformation(user *models.User) (*models.User, error) {
+    updatedUserBasicInformation, err := u.repo.UpdateUser(user)
+
+    if err != nil {
+        return nil, fmt.Errorf("unable to update user basic information %w", err)
+    };
+
+    return updatedUserBasicInformation, nil
+}
+
+func (u *userService) GetFullUserInformation(id string) (*models.FullUserInformation, error ) {
+    fullInformation, err := u.repo.GetFullUserInformation(id)
+
+    if err != nil {
+        return nil, fmt.Errorf("unable to fetch user full information %w", err)
+    }
+
+    return fullInformation, nil
 }
