@@ -8,7 +8,6 @@ type User struct {
 	FirstName string    `gorm:"not null" json:"first_name"`
 	LastName  string    `gorm:"not null" json:"last_name"`
 	Nin       string    `gorm:"not null" json:"nin"`
-	UserSocialInformation UserSocialInformation `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user_social_information"`
 }
 
 type UserRegistrationLocation struct {
