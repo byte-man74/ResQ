@@ -1,8 +1,12 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
+
 	"example.com/resq/server/internal/models"
+	"example.com/resq/server/internal/utils"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -13,6 +17,7 @@ type UserRepository interface {
 	UpdateUser(user *models.User)(*models.User, error)
 	UpdateUserSocialInformation(socialInformation *models.UserSocialInformation) (*models.UserSocialInformation, error)
 	GetFullUserInformation(id string) (*models.FullUserInformation, error )
+	FindUserByEmail(email string) (*models.User, error)
 }
 
 type userRepository struct {
@@ -28,6 +33,12 @@ func (r *userRepository) CreateUser(user *models.User, registrationLocationInfor
 	if user == nil {
 		return nil, fmt.Errorf("user value cannot be empty")
 	}
+
+	if len(user.Password) < 6 {
+		return nil, fmt.Errorf("password is too short")
+	}
+	user.Password = utils.HashPassword(user.Password)
+
 
 	if registrationLocationInformation == nil {
 		return nil, fmt.Errorf("registration location information cannot be empty")
@@ -128,4 +139,40 @@ func (r *userRepository) UpdateUserSocialInformation(
     }
 
     return socialInformation, nil
+}
+
+
+func (r *userRepository) FindUserByEmail(email string) (*models.User, error) {
+	var user models.User
+
+	if err := r.db.First(&user, "email = ?", email).Error; err != nil {
+		return nil, fmt.Errorf("error finding user with email %s: %w", email, err)
+	}
+
+	return &user, nil
+}
+
+
+func (r *userRepository) AuthenticateUser (email string, password string) (*models.User, error ) {
+	if email == "" {
+		return nil, errors.New("user field can't be empty")
+	}
+
+	if password == "" {
+		return nil, errors.New("password can't be empty")
+	}
+
+
+	user, err := r.FindUserByEmail(email)
+
+	if err != nil {
+		return nil, errors.New("invalid email or password")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return nil, errors.New("invalid email or password")
+	}
+
+
+	return user, nil
 }
