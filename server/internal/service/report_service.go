@@ -2,11 +2,10 @@ package service
 
 import (
 	"fmt"
-	"example.com/resq/server/internal/models"
-	"example.com/resq/server/internal/repository"
+
+	"resq.com/resq/server/internal/models"
+	"resq.com/resq/server/internal/repository"
 )
-
-
 
 type ReportService interface {
 	CreateReport(report *models.Report) (*models.Report, error)
@@ -14,19 +13,15 @@ type ReportService interface {
 	ViewReport(id string) (*models.Report, error)
 }
 
-
 type reportService struct {
 	repo repository.ReportRepository
 }
 
-
-
-func NewReportService (repo repository.ReportRepository) ReportService {
+func NewReportService(repo repository.ReportRepository) ReportService {
 	return &reportService{repo: repo}
 }
 
-
-func (r *reportService) CreateReport(report *models.Report) (*models.Report, error){
+func (r *reportService) CreateReport(report *models.Report) (*models.Report, error) {
 	createdReport, err := r.repo.CreateReport(report)
 
 	if err != nil {
@@ -36,9 +31,8 @@ func (r *reportService) CreateReport(report *models.Report) (*models.Report, err
 	return createdReport, nil
 }
 
-
 func (r *reportService) EditReport(id string, report *models.Report) (*models.Report, error) {
-	editedReport, err  := r.repo.EditReport(id, report)
+	editedReport, err := r.repo.EditReport(id, report)
 
 	if err != nil {
 		return nil, fmt.Errorf("unable to edit report %w", err)
@@ -46,7 +40,6 @@ func (r *reportService) EditReport(id string, report *models.Report) (*models.Re
 
 	return editedReport, nil
 }
-
 
 func (r *reportService) ViewReport(id string) (*models.Report, error) {
 	report, err := r.repo.ViewReport(id)

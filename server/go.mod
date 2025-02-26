@@ -1,4 +1,4 @@
-module example.com/resq/server
+module resq.com/resq/server
 
 go 1.23.4
 

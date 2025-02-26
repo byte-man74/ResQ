@@ -3,10 +3,10 @@ package repository
 import (
 	"errors"
 	"fmt"
-	"example.com/resq/server/internal/models"
-	"gorm.io/gorm"
-)
 
+	"gorm.io/gorm"
+	"resq.com/resq/server/internal/models"
+)
 
 type ReportRepository interface {
 	CreateReport(report *models.Report) (*models.Report, error)
@@ -14,17 +14,13 @@ type ReportRepository interface {
 	ViewReport(id string) (*models.Report, error)
 }
 
-
 type reportRepository struct {
 	db *gorm.DB
 }
 
-
-func NewReportRepository (db *gorm.DB) ReportRepository {
-	return &reportRepository{db : db}
+func NewReportRepository(db *gorm.DB) ReportRepository {
+	return &reportRepository{db: db}
 }
-
-
 
 func (r *reportRepository) CreateReport(report *models.Report) (*models.Report, error) {
 	if report == nil {
@@ -44,7 +40,7 @@ func (r *reportRepository) CreateReport(report *models.Report) (*models.Report, 
 	return report, nil
 }
 
-func (r *reportRepository ) ViewReport (id string) (*models.Report, error) {
+func (r *reportRepository) ViewReport(id string) (*models.Report, error) {
 	var report models.Report
 	result := r.db.First(&report, "id = ?", id)
 	if result.Error != nil {
@@ -53,8 +49,7 @@ func (r *reportRepository ) ViewReport (id string) (*models.Report, error) {
 	return &report, nil
 }
 
-
-func (r *reportRepository) EditReport (id string, report *models.Report) (*models.Report, error) {
+func (r *reportRepository) EditReport(id string, report *models.Report) (*models.Report, error) {
 	if report == nil {
 		return nil, errors.New("report cannot be nil")
 	}

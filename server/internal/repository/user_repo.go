@@ -2,18 +2,17 @@ package repository
 
 import (
 	"fmt"
-	"example.com/resq/server/internal/models"
-	"example.com/resq/server/internal/utils"
+
 	"gorm.io/gorm"
+	"resq.com/resq/server/internal/models"
+	"resq.com/resq/server/internal/utils"
 )
 
-
-
 type UserRepository interface {
-	CreateUser(user *models.User, registrationLocationInformation *models.UserRegistrationLocation, location *models.Location) (*models.User, error);
-	UpdateUser(user *models.User)(*models.User, error)
+	CreateUser(user *models.User, registrationLocationInformation *models.UserRegistrationLocation, location *models.Location) (*models.User, error)
+	UpdateUser(user *models.User) (*models.User, error)
 	UpdateUserSocialInformation(socialInformation *models.UserSocialInformation) (*models.UserSocialInformation, error)
-	GetFullUserInformation(id string) (*models.FullUserInformation, error )
+	GetFullUserInformation(id string) (*models.FullUserInformation, error)
 	FindUserByEmail(email string) (*models.User, error)
 }
 
@@ -25,7 +24,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
 }
 
-func (r *userRepository) CreateUser(user *models.User, registrationLocationInformation *models.UserRegistrationLocation, location *models.Location ) (*models.User, error) {
+func (r *userRepository) CreateUser(user *models.User, registrationLocationInformation *models.UserRegistrationLocation, location *models.Location) (*models.User, error) {
 
 	if user == nil {
 		return nil, fmt.Errorf("user value cannot be empty")
@@ -60,7 +59,6 @@ func (r *userRepository) CreateUser(user *models.User, registrationLocationInfor
 			return fmt.Errorf("error creating user %w", err)
 		}
 
-
 		registrationLocationInformation.LocationID = location.ID
 		registrationLocationInformation.UserID = user.ID
 
@@ -77,21 +75,17 @@ func (r *userRepository) CreateUser(user *models.User, registrationLocationInfor
 	return user, nil
 }
 
-
-func (r *userRepository ) UpdateUser (user *models.User) (*models.User, error) {
+func (r *userRepository) UpdateUser(user *models.User) (*models.User, error) {
 	if user == nil {
 		return nil, fmt.Errorf("user information must be provided")
 	}
 
-
-	if err  := r.db.Save(user).Error; err != nil {
+	if err := r.db.Save(user).Error; err != nil {
 		return nil, fmt.Errorf("an error happened when updating user: %w", err)
 	}
 
 	return user, nil
 }
-
-
 
 func (r *userRepository) GetFullUserInformation(id string) (*models.FullUserInformation, error) {
 	if id == "" {
@@ -110,20 +104,17 @@ func (r *userRepository) GetFullUserInformation(id string) (*models.FullUserInfo
 	return &fullInfo, nil
 }
 
-
-
 func (r *userRepository) UpdateUserSocialInformation(
-    socialInformation *models.UserSocialInformation,
+	socialInformation *models.UserSocialInformation,
 ) (*models.UserSocialInformation, error) {
 
-    // Save the social information and its associated images together
-    if err := r.db.Session(&gorm.Session{FullSaveAssociations: true}).Save(socialInformation).Error; err != nil {
-        return nil, fmt.Errorf("error saving user social information and images: %w", err)
-    }
+	// Save the social information and its associated images together
+	if err := r.db.Session(&gorm.Session{FullSaveAssociations: true}).Save(socialInformation).Error; err != nil {
+		return nil, fmt.Errorf("error saving user social information and images: %w", err)
+	}
 
-    return socialInformation, nil
+	return socialInformation, nil
 }
-
 
 func (r *userRepository) FindUserByEmail(email string) (*models.User, error) {
 	var user models.User
