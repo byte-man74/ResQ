@@ -1,9 +1,11 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"example.com/resq/server/internal/models"
 	"example.com/resq/server/internal/repository"
+	"example.com/resq/server/internal/utils"
 )
 
 
@@ -70,4 +72,28 @@ func (u *userService) GetFullUserInformation(id string) (*models.FullUserInforma
     }
 
     return fullInformation, nil
+}
+
+
+func (u *userService) AuthenticateUser(email string, password string) (*models.User, error ) {
+	if email == "" {
+		return nil, errors.New("user field can't be empty")
+	}
+
+	if password == "" {
+		return nil, errors.New("password can't be empty")
+	}
+
+
+	user, err := u.repo.FindUserByEmail(email)
+
+	if err != nil {
+		return nil, errors.New("invalid email or password")
+	}
+
+	if !utils.CheckPassword(user.Password, password) {
+		return nil, errors.New("invalid email or password")
+	}
+
+	return user, nil
 }

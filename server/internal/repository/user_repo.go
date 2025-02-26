@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"fmt"
 	"example.com/resq/server/internal/models"
 	"example.com/resq/server/internal/utils"
@@ -16,7 +15,6 @@ type UserRepository interface {
 	UpdateUserSocialInformation(socialInformation *models.UserSocialInformation) (*models.UserSocialInformation, error)
 	GetFullUserInformation(id string) (*models.FullUserInformation, error )
 	FindUserByEmail(email string) (*models.User, error)
-	AuthenticateUser(email string, password string) (*models.User, error)
 }
 
 type userRepository struct {
@@ -135,28 +133,4 @@ func (r *userRepository) FindUserByEmail(email string) (*models.User, error) {
 	}
 
 	return &user, nil
-}
-
-
-func (r *userRepository) AuthenticateUser(email string, password string) (*models.User, error ) {
-	if email == "" {
-		return nil, errors.New("user field can't be empty")
-	}
-
-	if password == "" {
-		return nil, errors.New("password can't be empty")
-	}
-
-
-	user, err := r.FindUserByEmail(email)
-
-	if err != nil {
-		return nil, errors.New("invalid email or password")
-	}
-
-	if !utils.CheckPassword(user.Password, password) {
-		return nil, errors.New("invalid email or password")
-	}
-
-	return user, nil
 }
