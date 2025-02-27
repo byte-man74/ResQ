@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"resq.com/resq/server/dto"
 	"resq.com/resq/server/internal/models"
