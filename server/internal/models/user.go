@@ -37,8 +37,3 @@ type UserHeadShotImages struct {
 	URL                     string    `gorm:"not null" json:"url"`
 }
 
-type FullUserInformation struct {
-	UserInformation           *User                     `json:"user_information"`
-	UserRegistrationLocation  *UserRegistrationLocation `json:"user_registration_location"`
-	UserSocialInformation     *UserSocialInformation    `json:"user_social_information"`
-}

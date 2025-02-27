@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"gorm.io/gorm"
+	"resq.com/resq/server/dto"
 	"resq.com/resq/server/internal/models"
 	"resq.com/resq/server/internal/utils"
 )
@@ -12,7 +13,7 @@ type UserRepository interface {
 	CreateUser(user *models.User, registrationLocationInformation *models.UserRegistrationLocation, location *models.Location) (*models.User, error)
 	UpdateUser(user *models.User) (*models.User, error)
 	UpdateUserSocialInformation(socialInformation *models.UserSocialInformation) (*models.UserSocialInformation, error)
-	GetFullUserInformation(id string) (*models.FullUserInformation, error)
+	GetFullUserInformation(id string) (*dto.FullUserInformation, error)
 	FindUserByEmail(email string) (*models.User, error)
 }
 
@@ -87,12 +88,12 @@ func (r *userRepository) UpdateUser(user *models.User) (*models.User, error) {
 	return user, nil
 }
 
-func (r *userRepository) GetFullUserInformation(id string) (*models.FullUserInformation, error) {
+func (r *userRepository) GetFullUserInformation(id string) (*dto.FullUserInformation, error) {
 	if id == "" {
 		return nil, fmt.Errorf("user ID must be provided to get full information")
 	}
 
-	var fullInfo models.FullUserInformation
+	var fullInfo dto.FullUserInformation
 
 	err := r.db.Preload("UserRegistrationLocation.Location").
 		Preload("UserSocialInformation.Images").

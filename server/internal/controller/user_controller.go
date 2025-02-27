@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"resq.com/resq/server/dto"
 	"resq.com/resq/server/internal/models"
 	"resq.com/resq/server/internal/service"
 )
@@ -13,7 +14,11 @@ type UserController interface {
 	UpdateUserBasicInformation(ctx *gin.Context)
 	UpdateUserSocialInformation(ctx *gin.Context)
 	GetFullUserInformation(ctx *gin.Context)
+	AuthenticateUser(ctx *gin.Context)
 }
+
+
+
 
 type userController struct {
 	service service.UserService
@@ -96,4 +101,28 @@ func (c *userController) GetFullUserInformation(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"data": fullInformation})
 
+}
+
+
+func (c *userController) AuthenticateUser(ctx *gin.Context) {
+	var login dto.ILogin
+
+	if err := ctx.ShouldBindJSON(&login); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	authenticatedPayload, err := c.service.AuthenticateUser(&login)
+
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	if authenticatedPayload == nil || authenticatedPayload.User == nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "authentication failed"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": authenticatedPayload})
 }

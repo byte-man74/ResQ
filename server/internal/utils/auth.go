@@ -63,8 +63,5 @@ func CheckPassword(storedHash, password string) bool {
 
 	providedPasswordHash := argon2.IDKey([]byte(password), salt, Iterations, Memory, Parallelism, KeyLength)
 
-
-
 	return base64.StdEncoding.EncodeToString(providedPasswordHash) == base64.StdEncoding.EncodeToString(storedHashedPassword)
-
 }

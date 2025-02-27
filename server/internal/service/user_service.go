@@ -5,16 +5,20 @@ import (
 	"fmt"
 	"strings"
 
+	"resq.com/resq/server/dto"
 	"resq.com/resq/server/internal/models"
 	"resq.com/resq/server/internal/repository"
 	"resq.com/resq/server/internal/utils"
 )
 
+
+
 type UserService interface {
 	CreateUser(user *models.User, registrationLocationInformation *models.UserRegistrationLocation, location *models.Location) (*models.User, error)
 	UpdateUserSocialInformation(socialInformation *models.UserSocialInformation) (*models.UserSocialInformation, error)
 	UpdateUserBasicInformation(user *models.User) (*models.User, error)
-	GetFullUserInformation(id string) (*models.FullUserInformation, error)
+	GetFullUserInformation(id string) (*dto.FullUserInformation, error)
+	AuthenticateUser(*dto.ILogin) (*dto.IAuthPayload, error)
 }
 
 type userService struct {
@@ -57,7 +61,7 @@ func (u *userService) UpdateUserBasicInformation(user *models.User) (*models.Use
 	return updatedUserBasicInformation, nil
 }
 
-func (u *userService) GetFullUserInformation(id string) (*models.FullUserInformation, error) {
+func (u *userService) GetFullUserInformation(id string) (*dto.FullUserInformation, error) {
 	fullInformation, err := u.repo.GetFullUserInformation(id)
 
 	if err != nil {
@@ -67,25 +71,35 @@ func (u *userService) GetFullUserInformation(id string) (*models.FullUserInforma
 	return fullInformation, nil
 }
 
-func (u *userService) AuthenticateUser(email string, password string) (*models.User, error) {
-	if email == "" {
+func (u *userService) AuthenticateUser(login *dto.ILogin) (*dto.IAuthPayload, error) {
+
+	if login.Email == "" {
 		return nil, errors.New("user field can't be empty")
 	}
 
-	if password == "" {
+	if login.Password == "" {
 		return nil, errors.New("password can't be empty")
 	}
 
-	email = strings.ToLower(email)
-	user, err := u.repo.FindUserByEmail(email)
+	login.Email = strings.ToLower(login.Email)
+	user, err := u.repo.FindUserByEmail(login.Email)
 
 	if err != nil {
 		return nil, errors.New("invalid email or password")
 	}
 
-	if !utils.CheckPassword(user.Password, password) {
+	if !utils.CheckPassword(user.Password, login.Password) {
 		return nil, errors.New("invalid email or password")
 	}
 
-	return user, nil
+	token, err := utils.GenerateJWT(user.Email);
+	if err != nil {
+		return nil, fmt.Errorf("unable to generate token, %w", err)
+	}
+
+	payload := dto.IAuthPayload{
+		User:  user,
+		Token: token,
+	}
+	return &payload, nil
 }
