@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/gorm"
 	"resq.com/resq/server/dto"
-	"resq.com/resq/server/internal/models"
+	"resq.com/resq/server/models"
 	"resq.com/resq/server/internal/utils"
 )
 

@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"strings"
-
 	"golang.org/x/crypto/argon2"
 )
 

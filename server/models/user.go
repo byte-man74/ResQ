@@ -2,6 +2,7 @@ package models
 
 
 
+
 type User struct {
 	Base
 	Email     string    `gorm:"not null unique;index" json:"email"`
@@ -36,4 +37,3 @@ type UserHeadShotImages struct {
 	User                    User      `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user"`
 	URL                     string    `gorm:"not null" json:"url"`
 }
-

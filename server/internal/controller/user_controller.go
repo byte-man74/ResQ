@@ -2,10 +2,11 @@ package controller
 
 import (
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"resq.com/resq/server/dto"
-	"resq.com/resq/server/internal/models"
 	"resq.com/resq/server/internal/service"
+	"resq.com/resq/server/models"
 )
 
 type UserController interface {
@@ -28,29 +29,26 @@ func NewUserController(service service.UserService) UserController {
 }
 
 func (c *userController) CreateUser(ctx *gin.Context) {
-	var user models.User
-	var registrationLocationInformation models.UserRegistrationLocation
-	var location models.Location
-
-	if err := ctx.ShouldBindJSON(&user); err != nil {
+	var request dto.ICreateAccount
+	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	newUser, err := c.service.CreateUser(&user, &registrationLocationInformation, &location)
+	// newUser, err := c.service.CreateUser(&request.User, &request.RegistrationLocationInformation, &request.Location)
 
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	// if err != nil {
+	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
-	ctx.JSON(http.StatusCreated, gin.H{"data": newUser})
+	ctx.JSON(http.StatusCreated, gin.H{"data": "pass"})
 }
 
 func (c *userController) UpdateUserBasicInformation(ctx *gin.Context) {
 	var user models.User
 
-	if err := ctx.ShouldBindBodyWithJSON(&user); err != nil {
+	if err := ctx.ShouldBindJSON(&user); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -119,7 +117,7 @@ func (c *userController) AuthenticateUser(ctx *gin.Context) {
 	}
 
 	if authenticatedPayload == nil || authenticatedPayload.User == nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "authentication failed"})
+		ctx.JSON(http.StatusUnauthorized , gin.H{"error": "authentication failed"})
 		return
 	}
 

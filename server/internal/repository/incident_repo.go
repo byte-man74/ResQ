@@ -3,7 +3,7 @@ package repository
 import (
 	"fmt"
 	"gorm.io/gorm"
-	"resq.com/resq/server/internal/models"
+	"resq.com/resq/server/models"
 )
 
 // Interface Definition

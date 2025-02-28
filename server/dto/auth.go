@@ -1,6 +1,6 @@
 package dto
 
-import "resq.com/resq/server/internal/models"
+import "resq.com/resq/server/models"
 
 
 
@@ -14,6 +14,12 @@ type FullUserInformation struct {
 type IAuthPayload struct {
 	User *models.User;
 	Token string;
+}
+
+type ICreateAccount struct 	{
+	User                           models.User                      `json:"user"`
+	RegistrationLocationInformation models.UserRegistrationLocation `json:"registrationLocation"`
+	Location                       models.Location                  `json:"location"`
 }
 
 type ILogin struct {

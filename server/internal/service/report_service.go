@@ -3,7 +3,7 @@ package service
 import (
 	"fmt"
 
-	"resq.com/resq/server/internal/models"
+	"resq.com/resq/server/models"
 	"resq.com/resq/server/internal/repository"
 )
 

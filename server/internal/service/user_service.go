@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"resq.com/resq/server/dto"
-	"resq.com/resq/server/internal/models"
+	"resq.com/resq/server/models"
 	"resq.com/resq/server/internal/repository"
 	"resq.com/resq/server/internal/utils"
 )
