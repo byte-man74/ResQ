@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"resq.com/resq/server/dto"
 	"resq.com/resq/server/internal/service"
+	"resq.com/resq/server/internal/utils"
 	"resq.com/resq/server/models"
 )
 
@@ -31,7 +32,8 @@ func NewUserController(service service.UserService) UserController {
 func (c *userController) CreateUser(ctx *gin.Context) {
 	var request dto.ICreateAccount
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": utils.FormatValidationErrors(err)})
 		return
 	}
 

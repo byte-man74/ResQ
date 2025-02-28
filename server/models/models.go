@@ -6,4 +6,10 @@ var Models = []interface{}{
 	&Location{},
 	&UserRegistrationLocation{},
 	&UserSocialInformation{},
+	&UserHeadShotImages{},
+	&Incident{},
+	&IncidentAnalytics{},
+	&IncidentCategory{},
+	&IncidentMedia{},
+	&File{},
 }

@@ -14,11 +14,11 @@ func InitDB() {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("failed to connect to database: ", err)
+		log.Printf("\033[31mfailed to connect to database: %v\033[0m", err)
 	}
 
 	DB = db
-	log.Println("Database connected successfully")
+	log.Printf("\033[32mDatabase connected successfully\033[0m")
 	RunMigrations()
 }
 
