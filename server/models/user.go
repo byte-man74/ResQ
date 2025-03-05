@@ -14,9 +14,9 @@ type User struct {
 
 type UserRegistrationLocation struct {
 	Base
-	Location   Location `gorm:"foreignKey:LocationID;constraint:OnDelete:CASCADE" json:"location"`
-	LocationID string   `gorm:"not null;index" json:"location_id"`
-	DeviceModel string    `gorm:"not null" json:"device_model"`
+	Location   Location `gorm:"foreignKey:LocationID;constraint:OnDelete:CASCADE" json:"location" binding:"required"`
+	LocationID string   `gorm:"not null;index" json:"location_id" binding:"required"`
+	DeviceModel string    `gorm:"not null" json:"device_model" binding:"required"`
 	UserID      string    `gorm:"not null;index" json:"user_id"`
 	UserIP 		string   `gorm:"not null" json:"user_ip"`
 	User        User      `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user"`

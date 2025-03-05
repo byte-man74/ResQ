@@ -25,26 +25,29 @@ type userController struct {
 	service service.UserService
 }
 
+
+
+
+
 func NewUserController(service service.UserService) UserController {
 	return &userController{service: service}
 }
 
 func (c *userController) CreateUser(ctx *gin.Context) {
 	var request dto.ICreateAccount
-	if err := ctx.ShouldBindJSON(&request); err != nil {
-		
+
+    if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": utils.FormatValidationErrors(err)})
 		return
 	}
+	newUser, err := c.service.CreateUser(&request.User, &request.RegistrationLocationInformation, &request.Location)
 
-	// newUser, err := c.service.CreateUser(&request.User, &request.RegistrationLocationInformation, &request.Location)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
-	// if err != nil {
-	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	// 	return
-	// }
-
-	ctx.JSON(http.StatusCreated, gin.H{"data": "pass"})
+	ctx.JSON(http.StatusCreated, gin.H{"data": newUser})
 }
 
 func (c *userController) UpdateUserBasicInformation(ctx *gin.Context) {

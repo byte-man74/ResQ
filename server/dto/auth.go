@@ -18,8 +18,8 @@ type IAuthPayload struct {
 
 type ICreateAccount struct 	{
 	User                           models.User                      `json:"user"`
-	RegistrationLocationInformation models.UserRegistrationLocation `json:"registrationLocation"`
-	Location                       models.Location                  `json:"location"`
+	RegistrationLocationInformation models.UserRegistrationLocation `json:"registrationLocation" binding:"required"`
+	Location                       models.Location                  `json:"location" binding:"required"`
 }
 
 type ILogin struct {
