@@ -2,20 +2,14 @@ package config
 
 import (
 	"log"
-
+	"resq/internal/domain/user"
 	"github.com/gin-gonic/gin"
-	"resq.com/resq/server/internal/routes"
 )
+
 var Router *gin.Engine
 
-func InitRouter() {
-	Router = gin.New()
-	Router.Use(gin.Logger())
-	Router.Use(gin.Recovery())
-
-
-
-	routes.UserRoutes(Router, DB)
+func InitRouter () {
+	Router = gin.Default()
+	user.UserRoutes(Router, DB);
 	log.Println("Router initialized")
-
 }

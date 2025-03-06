@@ -1,8 +1,7 @@
 package main
 
-import (
-	"resq.com/resq/server/config"
-)
+import "resq/config"
+
 
 func main() {
 	config.LoadConfig()
