@@ -1,16 +1,15 @@
 package config
 
 import (
-	"log"
-	"resq/pkg/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
+	"resq/pkg/models"
 )
-
 
 var DB *gorm.DB
 
-func InitDB () {
+func InitDB() {
 	dsn := GetEnv("DB_URL", "")
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -24,7 +23,7 @@ func InitDB () {
 	RunMigrations()
 }
 
-func RunMigrations () {
+func RunMigrations() {
 	err := DB.AutoMigrate(models.Models...)
 
 	if err != nil {
