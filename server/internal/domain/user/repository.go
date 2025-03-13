@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	"resq/pkg/dto"
 	"resq/pkg/models"
 
 	"gorm.io/gorm"
@@ -11,7 +12,7 @@ import (
 
 
 type UserRepository interface {
-	CreateUser (*models.User) (*models.User, error)
+	CreateUser (*models.User) (*dto.UserDTO, error)
 }
 
 
@@ -25,11 +26,11 @@ func NewUserRepository (db *gorm.DB) UserRepository {
 
 
 
-func (u *userRepository ) CreateUser (user *models.User) (*models.User, error) {
+func (u *userRepository ) CreateUser (user *models.User) (*dto.UserDTO, error) {
 	result := u.db.Create(user);
 	if result.Error != nil {
 		return nil, fmt.Errorf("unable to create user %w", result.Error)
 	}
 
-	return user, nil
+	return user.ToDTO(), nil
 }

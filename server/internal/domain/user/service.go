@@ -2,12 +2,14 @@ package user
 
 import (
 	"errors"
+	"resq/pkg/dto"
 	"resq/pkg/models"
+	"resq/pkg/utils"
 )
 
 
 type UserService interface {
-	CreateUser(user *models.User) (*models.User, error)
+	CreateUser(user *models.User) (*dto.UserDTO, error)
 }
 
 type userService struct {
@@ -19,8 +21,20 @@ func NewUserService (repo UserRepository) UserService {
 }
 
 
-func (u *userService) CreateUser (user *models.User) (*models.User, error ) {
+func (u *userService) CreateUser (user *models.User) (*dto.UserDTO, error ) {
 	//validate and hash user password here
+	sanitizedEmail, err := utils.SanitizeEmail(user.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	hashedPassword, err := utils.HashPassword(user.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	user.Password = hashedPassword
+	user.Email = sanitizedEmail
 
 	result, err := u.repository.CreateUser(user)
 
@@ -30,3 +44,6 @@ func (u *userService) CreateUser (user *models.User) (*models.User, error ) {
 
 	return result, nil
 }
+
+
+// func (u *userService) AuthorizeUser ()

@@ -1,58 +1,69 @@
 package utils
 
 import (
-	"reflect"
+	"crypto/rand"
+	"encoding/base64"
+	"fmt"
+	"strings"
 
-	"github.com/go-playground/validator/v10"
+	"golang.org/x/crypto/argon2"
 )
 
-type validationErrorResponse struct {
-	Field   string `json:"field"`
-	Message string `json:"message"`
+const (
+	time    = 1         // Number of iterations
+	memory  = 64 * 1024 // 64MB memory
+	threads = 4         // Number of parallel threads
+	keyLen  = 32        // Length of the derived key
+	saltLen = 16        // Length of the salt
+)
+
+func GenerateSalt() ([]byte, error) {
+	salt := make([]byte, saltLen)
+	_, err := rand.Read(salt)
+	if err != nil {
+		return nil, err
+	}
+	return salt, nil
 }
 
-func msgForTag(tag string) string {
-	switch tag {
-	case "required":
-		return "This field is required"
-	case "email":
-		return "Invalid email format"
-	default:
-		return "Invalid value"
+func HashPassword(password string) (string, error) {
+	validatedPassword, err := ValidatePassword(password)
+
+	if err != nil {
+		return "", err
+	};
+
+	salt, err := GenerateSalt()
+	if err != nil {
+		return "", err
 	}
+
+	hash := argon2.IDKey([]byte(validatedPassword), salt, time, memory, threads, keyLen)
+
+	hashedPassword := fmt.Sprintf("%s$%s", base64.RawStdEncoding.EncodeToString(salt), base64.RawStdEncoding.EncodeToString(hash))
+	return hashedPassword, nil
 }
 
-// Function to get JSON tag name
-func getJSONFieldName(structType reflect.Type, fieldName string) string {
-	field, found := structType.FieldByName(fieldName)
-	if !found {
-		return fieldName // Default to struct field name if no JSON tag
+func VerifyPassword(password string, storedHash string) bool {
+	parts := strings.Split(storedHash, "$")
+
+	if len(parts) != 2 {
+		return false
 	}
 
-	jsonTag := field.Tag.Get("json")
-	if jsonTag == "" {
-		return fieldName // Default to struct field name if no JSON tag
+	salt, err := base64.RawStdEncoding.DecodeString(parts[0])
+
+	if err != nil {
+		return false
 	}
 
-	return jsonTag
-}
+	storedKey, err := base64.RawStdEncoding.DecodeString(parts[1])
 
-func FormatValidationErrors(err error, model interface{}) []validationErrorResponse {
-	var errors []validationErrorResponse
-
-	if validationErrors, ok := err.(validator.ValidationErrors); ok {
-		structType := reflect.TypeOf(model) // Get struct type
-
-		errors = make([]validationErrorResponse, len(validationErrors))
-		for i, fieldError := range validationErrors {
-			jsonField := getJSONFieldName(structType, fieldError.Field())
-
-			errors[i] = validationErrorResponse{
-				Field:   jsonField,
-				Message: msgForTag(fieldError.Tag()),
-			}
-		}
+	if err != nil {
+		return false
 	}
 
-	return errors
+	newHash := argon2.IDKey([]byte(password), salt, time, memory, threads, keyLen)
+
+	return string(storedKey) == string(newHash)
 }
