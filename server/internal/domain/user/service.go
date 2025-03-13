@@ -2,26 +2,27 @@ package user
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"resq/pkg/dto"
 	"resq/pkg/models"
 	"resq/pkg/utils"
 )
 
-
 type UserService interface {
 	CreateUser(user *models.User) (*dto.UserDTO, error)
+	AuthorizeUser(login *dto.LoginRequestDTO) (string, error)
 }
 
 type userService struct {
 	repository UserRepository
 }
 
-func NewUserService (repo UserRepository) UserService {
+func NewUserService(repo UserRepository) UserService {
 	return &userService{repository: repo}
 }
 
-
-func (u *userService) CreateUser (user *models.User) (*dto.UserDTO, error ) {
+func (u *userService) CreateUser(user *models.User) (*dto.UserDTO, error) {
 	//validate and hash user password here
 	sanitizedEmail, err := utils.SanitizeEmail(user.Email)
 	if err != nil {
@@ -45,5 +46,27 @@ func (u *userService) CreateUser (user *models.User) (*dto.UserDTO, error ) {
 	return result, nil
 }
 
+func (u *userService) AuthorizeUser(login *dto.LoginRequestDTO) (string, error) {
+	sanitizedEmail, err := utils.SanitizeEmail(login.Email)
+	if err != nil {
+		return "", err
+	}
 
-// func (u *userService) AuthorizeUser ()
+	user, err := u.repository.FindUserByEmail(sanitizedEmail)
+	if err != nil {
+		return "", err
+	}
+
+	hasVerifiedPeople := utils.VerifyPassword(login.Password, user.Password)
+	if !hasVerifiedPeople {
+		return "", errors.New("invalid credentials")
+	}
+
+	token, err := utils.GenerateJWT(fmt.Sprint(user.ID), []byte(os.Getenv("JWT_SECRET")))
+	if err != nil {
+		return "", errors.New("authorization error")
+	}
+
+	return token, nil
+
+}

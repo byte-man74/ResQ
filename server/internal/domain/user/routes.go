@@ -10,11 +10,10 @@ func UserRoutes(router *gin.Engine, db *gorm.DB) {
 	userService := NewUserService(userRepository)
 	userController := NewUserController(userService)
 
-	users := router.Group("users/")
+	users := router.Group("users")
 
 	{
-		users.POST("/create/", userController.CreateUser)
-
+		users.POST("/create", userController.CreateUser)
+		users.POST("/login", userController.AuthorizeUser)
 	}
-
 }

@@ -5,12 +5,11 @@ import (
 	"encoding/base64"
 	"fmt"
 	"strings"
-
 	"golang.org/x/crypto/argon2"
 )
 
 const (
-	time    = 1         // Number of iterations
+	iterations   = 1         // Number of iterations
 	memory  = 64 * 1024 // 64MB memory
 	threads = 4         // Number of parallel threads
 	keyLen  = 32        // Length of the derived key
@@ -38,7 +37,7 @@ func HashPassword(password string) (string, error) {
 		return "", err
 	}
 
-	hash := argon2.IDKey([]byte(validatedPassword), salt, time, memory, threads, keyLen)
+	hash := argon2.IDKey([]byte(validatedPassword), salt, iterations, memory, threads, keyLen)
 
 	hashedPassword := fmt.Sprintf("%s$%s", base64.RawStdEncoding.EncodeToString(salt), base64.RawStdEncoding.EncodeToString(hash))
 	return hashedPassword, nil
@@ -63,7 +62,7 @@ func VerifyPassword(password string, storedHash string) bool {
 		return false
 	}
 
-	newHash := argon2.IDKey([]byte(password), salt, time, memory, threads, keyLen)
+	newHash := argon2.IDKey([]byte(password), salt, iterations, memory, threads, keyLen)
 
 	return string(storedKey) == string(newHash)
 }

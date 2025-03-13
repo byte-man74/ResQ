@@ -6,8 +6,9 @@ type UserDTO struct {
 	Email string
 	FirstName string
 	LastName string
-
 }
-type LoginDTO struct {
-	Email string ""
+
+type LoginRequestDTO struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }

@@ -3,6 +3,7 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
+  include_dir = ["cmd", "internal", "pkg"]
   cmd = "go build -o tmp/main ./cmd/server/."
   bin = "tmp/main"
   full_bin = "./tmp/main"

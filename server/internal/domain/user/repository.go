@@ -13,6 +13,7 @@ import (
 
 type UserRepository interface {
 	CreateUser (*models.User) (*dto.UserDTO, error)
+	FindUserByEmail (email string) (*models.User, error)
 }
 
 
@@ -31,6 +32,15 @@ func (u *userRepository ) CreateUser (user *models.User) (*dto.UserDTO, error) {
 	if result.Error != nil {
 		return nil, fmt.Errorf("unable to create user %w", result.Error)
 	}
-
 	return user.ToDTO(), nil
+}
+
+
+func (u *userRepository) FindUserByEmail (email string) (*models.User, error) {
+	var user models.User
+	result := u.db.Where("email = ?", email).First(&user)
+	if result.Error != nil {
+		return nil, fmt.Errorf("unable to find user: %w", result.Error)
+	}
+	return &user, nil
 }
