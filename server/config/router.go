@@ -8,8 +8,10 @@ import (
 
 var Router *gin.Engine
 
-func InitRouter () {
+func InitRouter() {
 	Router = gin.Default()
-	user.UserRoutes(Router, DB);
+	user.UserRoutes(Router, DB)
+	Router.RedirectTrailingSlash = true
+
 	log.Println("Router initialized")
 }
