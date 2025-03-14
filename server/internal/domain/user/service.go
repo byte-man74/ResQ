@@ -3,6 +3,7 @@ package user
 import (
 	"errors"
 	"fmt"
+	"resq/internal/infra/logger"
 	"resq/pkg/constants"
 	"resq/pkg/dto"
 	"resq/pkg/models"
@@ -41,6 +42,7 @@ func (u *userService) CreateUser(user *models.User) (*dto.UserDTO, error) {
 	result, err := u.repository.CreateUser(user)
 
 	if err != nil {
+		logger.GlobalLogger.Log(logger.ERROR, fmt.Sprintf("unable to create user: %v", err))
 		return nil, errors.New(err.Error())
 	}
 
