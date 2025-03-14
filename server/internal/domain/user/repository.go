@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"resq/pkg/dto"
 	"resq/pkg/models"
-
 	"gorm.io/gorm"
 )
 
@@ -14,6 +13,7 @@ import (
 type UserRepository interface {
 	CreateUser (*models.User) (*dto.UserDTO, error)
 	FindUserByEmail (email string) (*models.User, error)
+	GetUserProfileInformation (userId uint) (*dto.UserDTO, error)
 }
 
 
@@ -43,4 +43,15 @@ func (u *userRepository) FindUserByEmail (email string) (*models.User, error) {
 		return nil, fmt.Errorf("unable to find user: %w", result.Error)
 	}
 	return &user, nil
+}
+
+
+func (u *userRepository) GetUserProfileInformation (userId uint) (*dto.UserDTO, error) {
+	var user models.User
+	result := u.db.Where("id = ?", userId).First(&user)
+
+	if result.Error != nil {
+		return nil, fmt.Errorf("unable to find user profile information %w", result.Error)
+	}
+	return user.ToDTO(), nil
 }

@@ -13,12 +13,16 @@ type Claims struct {
 
 func GenerateJWT (userID string, secret []byte) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
+	currentTime := time.Now()
 
 	claims := &Claims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			IssuedAt: jwt.NewNumericDate(currentTime),
+			Issuer: "resq-server",
 		},
+
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -42,7 +46,7 @@ func ValidateJWT(tokenString string, secret string) (*Claims, error) {
 	})
 
 	if err != nil || !token.Valid {
-		return nil, err // Invalid token
+		return nil, err
 	}
 
 	return claims, nil

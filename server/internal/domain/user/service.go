@@ -3,7 +3,7 @@ package user
 import (
 	"errors"
 	"fmt"
-	"os"
+	"resq/pkg/constants"
 	"resq/pkg/dto"
 	"resq/pkg/models"
 	"resq/pkg/utils"
@@ -12,6 +12,7 @@ import (
 type UserService interface {
 	CreateUser(user *models.User) (*dto.UserDTO, error)
 	AuthorizeUser(login *dto.LoginRequestDTO) (string, error)
+	GetUserProfileInformation(userId uint) (*dto.UserDTO, error)
 }
 
 type userService struct {
@@ -57,16 +58,25 @@ func (u *userService) AuthorizeUser(login *dto.LoginRequestDTO) (string, error) 
 		return "", err
 	}
 
-	hasVerifiedPeople := utils.VerifyPassword(login.Password, user.Password)
-	if !hasVerifiedPeople {
+	hasVerifiedPassword := utils.VerifyPassword(login.Password, user.Password)
+	if !hasVerifiedPassword {
 		return "", errors.New("invalid credentials")
 	}
 
-	token, err := utils.GenerateJWT(fmt.Sprint(user.ID), []byte(os.Getenv("JWT_SECRET")))
+	token, err := utils.GenerateJWT(fmt.Sprint(user.ID), constants.JWTSecretKey)
 	if err != nil {
 		return "", errors.New("authorization error")
 	}
 
 	return token, nil
+}
 
+func (u *userService) GetUserProfileInformation(userId uint) (*dto.UserDTO, error) {
+	result, err := u.repository.GetUserProfileInformation(userId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
