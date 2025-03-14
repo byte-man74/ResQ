@@ -1,8 +1,9 @@
 package config
 
 import (
-	"fmt"
 	"os"
+	"resq/internal/infra/logger"
+
 	"github.com/joho/godotenv"
 )
 
@@ -10,9 +11,11 @@ import (
 func LoadEnv () {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("unable to load env:", err)
+		logger.GlobalLogger.Log(logger.ERROR, "unable to connect to environment variable", map[string]interface{}{
+			"error": err.Error(),
+		})
 	}
-	fmt.Println("environment variable connected successfully")
+	logger.GlobalLogger.Log(logger.INFO, "Environment variable found")
 }
 
 func GetEnv(key, defaultValue string) string {
