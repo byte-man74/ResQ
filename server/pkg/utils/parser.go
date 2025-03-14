@@ -2,6 +2,8 @@ package utils
 
 import (
 	"reflect"
+	"strconv"
+
 	"github.com/go-playground/validator/v10"
 )
 
@@ -54,4 +56,16 @@ func FormatValidationErrors(err error, model interface{}) []validationErrorRespo
 	}
 
 	return errors
+}
+
+
+func ParseUserId (userId string) (uint, error) {
+	userIdInt, err := strconv.Atoi(userId)
+	if err != nil {
+		return 0, err
+	}
+
+	userIDUint := uint(userIdInt)
+
+	return userIDUint, nil
 }

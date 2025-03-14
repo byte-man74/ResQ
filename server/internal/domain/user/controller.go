@@ -1,14 +1,12 @@
 package user
 
 import (
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"resq/pkg/constants"
 	"resq/pkg/dto"
 	"resq/pkg/models"
 	"resq/pkg/utils"
-	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
 type UserController interface {
@@ -20,8 +18,6 @@ type UserController interface {
 type userController struct {
 	service UserService
 }
-
-
 
 func NewUserController(service UserService) UserController {
 	return &userController{service: service}
@@ -66,33 +62,30 @@ func (u *userController) AuthorizeUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{constants.RequestData: token})
 }
 
-
 func (u *userController) GetUserProfileInformation(ctx *gin.Context) {
-	userID, exists := ctx.Get("user_id")
+	userIDStr, exists := ctx.Get("user_id")
 	if !exists {
 		ctx.JSON(http.StatusUnauthorized, gin.H{constants.RequestError: "unauthorized"})
 		return
 	}
 
-	if userID == nil {
+	if userIDStr == nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{constants.RequestError: "invalid user id"})
 		return
 	}
 
-	userIdStr, ok := userID.(string)
+	userIdStr, ok := userIDStr.(string)
 	if !ok {
 		ctx.JSON(http.StatusInternalServerError, gin.H{constants.RequestError: "internal server error"})
 		return
 	}
 
-	userIdInt, err := strconv.Atoi(userIdStr)
+	userId, err := utils.ParseUserId(userIdStr)
+
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{constants.RequestError: "internal server error"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{constants.RequestError: err})
 		return
 	}
-
-	userId := uint(userIdInt)
-
 
 	result, err := u.service.GetUserProfileInformation(userId)
 
