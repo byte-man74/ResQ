@@ -40,6 +40,7 @@ func main() {
 	files := map[string]string{
 		"repository.go": repoTemplate(domainName),
 		"service.go" : serviceTemplate(domainName),
+		"controller.go" : controllerTemplate(domainName),
 	};
 
 	for filename, content := range files {
@@ -93,6 +94,25 @@ func New%sService(repo *%sRepository) %sService {
 }
 
 
+func controllerTemplate(domain string) string {
+	return fmt.Sprintf(`package %s
+
+import (
+	"github.com/gin-gonic/gin"
+)
+
+type %sController interface {
+}
+
+type %sController struct {
+	service %sService
+}
+
+func New%sController(service %sService) %sController {
+	return &%sController{service: service}
+}
+`, domain, parseText(domain, true), parseText(domain, false), parseText(domain, true), parseText(domain, true), parseText(domain, true), parseText(domain, true), parseText(domain, false))
+}
 
 func parseText(text string, capitalize bool) string {
 	if len(text) == 0 {
